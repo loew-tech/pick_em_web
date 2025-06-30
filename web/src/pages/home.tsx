@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ChangeEvent, ReactNode, useEffect, useState } from "react";
 
 import "./home.css";
 import {
@@ -7,12 +7,16 @@ import {
   FormControl,
   FormControlLabel,
   FormGroup,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import { Option } from "../types/types";
 
 export const Home = () => {
   const [categories, setCategories] = useState<string[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
+  const [priority, setPriority] = useState<string>("low");
+  const [effort, setEffort] = useState<string>("low");
   const [pick, setPick] = useState<Option | null>(null);
 
   const fetchCategories = async () => {
@@ -46,6 +50,24 @@ export const Home = () => {
     throw new Error("Function not implemented.");
   }
 
+  const handlePriorityChange = (
+    event:
+      | ChangeEvent<Omit<HTMLInputElement, "value"> & { value: string }>
+      | (Event & { target: { value: string; name: string } }),
+    _: ReactNode
+  ): void => {
+    setPriority((event.target as any).value as string);
+  };
+
+  const handleEffortChange = (
+    event:
+      | ChangeEvent<Omit<HTMLInputElement, "value"> & { value: string }>
+      | (Event & { target: { value: string; name: string } }),
+    _: ReactNode
+  ): void => {
+    setEffort(event.target.value as string);
+  };
+
   return (
     <div className="home">
       <FormControl sx={{ m: 3 }} component="fieldset" variant="standard">
@@ -60,6 +82,30 @@ export const Home = () => {
             );
           })}
         </FormGroup>
+        <h2>Priority</h2>
+        <Select
+          labelId="priority-select"
+          id="priority-select"
+          value={priority}
+          label="priority"
+          onChange={handlePriorityChange}
+        >
+          <MenuItem value={"low"}>low</MenuItem>
+          <MenuItem value={"medium"}>medium</MenuItem>
+          <MenuItem value={"high"}>high</MenuItem>
+        </Select>
+        <h2>Effort</h2>
+        <Select
+          labelId="effort-select"
+          id="effort-select"
+          value={effort}
+          label="effort"
+          onChange={handleEffortChange}
+        >
+          <MenuItem value={"low"}>low</MenuItem>
+          <MenuItem value={"medium"}>medium</MenuItem>
+          <MenuItem value={"high"}>high</MenuItem>
+        </Select>
       </FormControl>
       <div className="cat-btns">
         <Button onClick={makePick}>Pick!</Button>
