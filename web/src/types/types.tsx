@@ -3,3 +3,7 @@ export type Option = {
   interest?: string;
   effort?: string;
 };
+
+export type Selection = {
+  selection: string;
+};

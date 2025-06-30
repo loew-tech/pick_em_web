@@ -7,17 +7,18 @@ import {
   FormControl,
   FormControlLabel,
   FormGroup,
+  FormLabel,
   MenuItem,
   Select,
 } from "@mui/material";
-import { Option } from "../types/types";
+import { Selection } from "../types/types";
 
 export const Home = () => {
   const [categories, setCategories] = useState<string[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
-  const [priority, setPriority] = useState<string>("low");
+  const [interest, setInterest] = useState<string>("low");
   const [effort, setEffort] = useState<string>("low");
-  const [pick, setPick] = useState<Option | null>(null);
+  const [pick, setPick] = useState<string | null>(null);
 
   const fetchCategories = async () => {
     const response = await fetch("http://127.0.0.1:5000/categories");
@@ -46,17 +47,34 @@ export const Home = () => {
     throw new Error("Function not implemented.");
   }
 
-  function makePick(event: React.MouseEvent<HTMLButtonElement>): void {
-    throw new Error("Function not implemented.");
-  }
+  const makePick = () => async (event: React.MouseEvent<HTMLButtonElement>) => {
+    const response = await fetch(
+      `http://127.0.0.1:5000/categories/pick?${selected
+        .map((c) => `categories=${c}`)
+        .join("&")}&effort=${effort}`
+    );
 
-  const handlePriorityChange = (
+    if (!response.ok) {
+      console.warn(
+        "fetching pick failed",
+        categories,
+        "interest",
+        interest,
+        "effort",
+        effort
+      );
+    }
+    const choice: Selection = await response.json();
+    setPick(choice.selection);
+  };
+
+  const handleInterestChange = (
     event:
       | ChangeEvent<Omit<HTMLInputElement, "value"> & { value: string }>
       | (Event & { target: { value: string; name: string } }),
     _: ReactNode
   ): void => {
-    setPriority((event.target as any).value as string);
+    setInterest((event.target as any).value as string);
   };
 
   const handleEffortChange = (
@@ -82,19 +100,23 @@ export const Home = () => {
             );
           })}
         </FormGroup>
-        <h2>Priority</h2>
+      </FormControl>
+      <FormControl sx={{ m: 3 }} component="fieldset" variant="standard">
+        <FormLabel>Interest</FormLabel>
         <Select
-          labelId="priority-select"
-          id="priority-select"
-          value={priority}
-          label="priority"
-          onChange={handlePriorityChange}
+          labelId="interest-select"
+          id="interest-select"
+          value={interest}
+          label="interest"
+          onChange={handleInterestChange}
         >
           <MenuItem value={"low"}>low</MenuItem>
           <MenuItem value={"medium"}>medium</MenuItem>
           <MenuItem value={"high"}>high</MenuItem>
         </Select>
-        <h2>Effort</h2>
+      </FormControl>
+      <FormControl sx={{ m: 3 }} component="fieldset" variant="standard">
+        <FormLabel>Effort</FormLabel>
         <Select
           labelId="effort-select"
           id="effort-select"
@@ -109,7 +131,7 @@ export const Home = () => {
       </FormControl>
       <div className="cat-btns">
         <Button onClick={makePick}>Pick!</Button>
-        <Button onClick={doExplore}>Explore</Button>
+        <Button onClick={doExplore}>Explore!</Button>
       </div>
     </div>
   );
