@@ -1,17 +1,13 @@
-import { ChangeEvent, ReactNode, useEffect, useState, MouseEvent } from "react";
+import { ChangeEvent, ReactNode, useEffect, useState } from "react";
 
 import "./home.css";
-import {
-  Button,
-  Checkbox,
-  FormControl,
-  FormControlLabel,
-  FormGroup,
-  FormLabel,
-  MenuItem,
-  Select,
-} from "@mui/material";
+
+import { Button } from "@mui/material";
 import { Category, Selection } from "../types/types";
+import { OptionsComponent } from "../components/Options";
+import { FilterDropdown } from "../components/FilterDropdown";
+import { PickComponent } from "../components/Pick";
+import { CategorySelect } from "../components/CategorySelect";
 
 export const Home = () => {
   const [categories, setCategories] = useState<string[]>([]);
@@ -21,7 +17,6 @@ export const Home = () => {
   const [pick, setPick] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [options, setOptions] = useState<Category[]>([]);
-  const [removed, setRemoved] = useState<boolean>(false);
 
   const fetchCategories = async () => {
     const response = await fetch("http://127.0.0.1:5000/categories");
@@ -63,7 +58,6 @@ export const Home = () => {
 
   const getPick = async (_: React.MouseEvent<HTMLButtonElement>) => {
     setOptions([]);
-    setRemoved(false);
     const response = await fetch(
       `http://127.0.0.1:5000/categories/pick?${selected
         .map((c) => `categories=${c}`)
@@ -103,102 +97,19 @@ export const Home = () => {
     setEffort(event.target.value as string);
   };
 
-  const removeItem = async (_: MouseEvent<HTMLButtonElement>) => {
-    setRemoved(false);
-    if (!pick) {
-      return;
-    }
-    const p = pick.split(" ").join("+");
-    const respsone = await fetch(
-      `http://127.0.0.1:5000/categories/${selectedCategory}/remove/${p}`,
-      {
-        method: "DELETE",
-      }
-    );
-    if (!respsone.ok) {
-      console.warn(`Failed to remove item ${pick}`);
-      return;
-    }
-    setRemoved(true);
-  };
-
   return (
     <div className="home">
-      <FormControl sx={{ m: 3 }} component="fieldset" variant="standard">
-        <FormGroup>
-          {categories.map((c) => {
-            return (
-              <FormControlLabel
-                key={c}
-                control={<Checkbox onChange={handleChange} name={c} />}
-                label={c}
-              />
-            );
-          })}
-        </FormGroup>
-      </FormControl>
-      <FormControl sx={{ m: 3 }} component="fieldset" variant="standard">
-        <FormLabel>Interest</FormLabel>
-        <Select
-          labelId="interest-select"
-          id="interest-select"
-          value={interest}
-          label="interest"
-          onChange={handleInterestChange}
-        >
-          <MenuItem value={"low"}>low</MenuItem>
-          <MenuItem value={"medium"}>medium</MenuItem>
-          <MenuItem value={"high"}>high</MenuItem>
-        </Select>
-      </FormControl>
-      <FormControl sx={{ m: 3 }} component="fieldset" variant="standard">
-        <FormLabel>Effort</FormLabel>
-        <Select
-          labelId="effort-select"
-          id="effort-select"
-          value={effort}
-          label="effort"
-          onChange={handleEffortChange}
-        >
-          <MenuItem value={"low"}>low</MenuItem>
-          <MenuItem value={"medium"}>medium</MenuItem>
-          <MenuItem value={"high"}>high</MenuItem>
-        </Select>
-      </FormControl>
+      <CategorySelect categories={categories} handleChange={handleChange} />
+      <FilterDropdown title="interest" handleChange={handleInterestChange} />
+      <FilterDropdown title="effort" handleChange={handleEffortChange} />
       <div className="cat-btns">
         <Button onClick={getPick}>Pick!</Button>
         <Button onClick={doExplore}>Explore!</Button>
       </div>
       {pick ? (
-        <div>
-          PICK
-          <p>{pick}</p>
-          <Button disabled={removed} onClick={removeItem}>
-            {removed ? "REMOVED" : "REMOVE"}
-          </Button>
-        </div>
+        <PickComponent pick={pick} selectedCategory={selectedCategory} />
       ) : null}
-      {options.length ? (
-        <div className="options-wrapper">
-          <h2>Options</h2>
-          {options.map((o) => (
-            <div key={o.name}>
-              <h3>{o.name}</h3>
-              <div className="options-grid">
-                {o.choices.map((c, i) => (
-                  <div className="option-card" key={`${i}-${c.name}`}>
-                    <h4>{c.name}</h4>
-                    <ul>
-                      <li>Interest: {c.interest ?? "?"}</li>
-                      <li>Effort: {c.effort ?? "?"}</li>
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : null}
+      {options.length ? <OptionsComponent options={options} /> : null}
     </div>
   );
 };
