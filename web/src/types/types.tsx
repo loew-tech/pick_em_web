@@ -6,6 +6,7 @@ export type Option = {
 
 export type Selection = {
   selection: string;
+  category: string;
 };
 
 export type Category = {

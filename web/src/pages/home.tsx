@@ -1,4 +1,4 @@
-import { ChangeEvent, ReactNode, useEffect, useState } from "react";
+import { ChangeEvent, ReactNode, useEffect, useState, MouseEvent } from "react";
 
 import "./home.css";
 import {
@@ -19,7 +19,9 @@ export const Home = () => {
   const [interest, setInterest] = useState<string>("low");
   const [effort, setEffort] = useState<string>("low");
   const [pick, setPick] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [options, setOptions] = useState<Category[]>([]);
+  const [removed, setRemoved] = useState<boolean>(false);
 
   const fetchCategories = async () => {
     const response = await fetch("http://127.0.0.1:5000/categories");
@@ -61,10 +63,11 @@ export const Home = () => {
 
   const getPick = async (_: React.MouseEvent<HTMLButtonElement>) => {
     setOptions([]);
+    setRemoved(false);
     const response = await fetch(
       `http://127.0.0.1:5000/categories/pick?${selected
         .map((c) => `categories=${c}`)
-        .join("&")}&effort=${effort}`
+        .join("&")}&effort=${effort}&interest=${interest}`
     );
 
     if (!response.ok) {
@@ -79,6 +82,7 @@ export const Home = () => {
     }
     const choice: Selection = await response.json();
     setPick(choice.selection);
+    setSelectedCategory(choice.category);
   };
 
   const handleInterestChange = (
@@ -97,6 +101,25 @@ export const Home = () => {
     _: ReactNode
   ): void => {
     setEffort(event.target.value as string);
+  };
+
+  const removeItem = async (_: MouseEvent<HTMLButtonElement>) => {
+    setRemoved(false);
+    if (!pick) {
+      return;
+    }
+    const p = pick.split(" ").join("+");
+    const respsone = await fetch(
+      `http://127.0.0.1:5000/categories/${selectedCategory}/remove/${p}`,
+      {
+        method: "DELETE",
+      }
+    );
+    if (!respsone.ok) {
+      console.warn(`Failed to remove item ${pick}`);
+      return;
+    }
+    setRemoved(true);
   };
 
   return (
@@ -150,6 +173,9 @@ export const Home = () => {
         <div>
           PICK
           <p>{pick}</p>
+          <Button disabled={removed} onClick={removeItem}>
+            {removed ? "REMOVED" : "REMOVE"}
+          </Button>
         </div>
       ) : null}
       {options.length ? (
