@@ -4,7 +4,6 @@ import "./home.css";
 import {
   Button,
   Checkbox,
-  Container,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -47,24 +46,21 @@ export const Home = () => {
 
   const doExplore = async (_: React.MouseEvent<HTMLButtonElement>) => {
     setPick(null);
-    console.log("categories", categories);
-    let cats: Category[] = [];
-    await categories.forEach(async (c) => {
-      console.log("c", c);
-      const resposne = await fetch(`http://127.0.0.1:5000/categories/${c}`);
-      if (!resposne.ok) {
-        return;
-      }
-      const data = await resposne.json();
-      cats.push(data);
-      console.log("cats", cats);
-    });
-    setOptions(cats);
+    const cats: Category[] = await Promise.all(
+      selected.map(async (c) => {
+        const response = await fetch(`http://127.0.0.1:5000/categories/${c}`);
+        if (!response.ok) {
+          return null;
+        }
+        const data = await response.json();
+        return data;
+      })
+    );
+    setOptions(cats.filter((cat): cat is Category => cat !== null));
   };
 
   const getPick = async (_: React.MouseEvent<HTMLButtonElement>) => {
-    // setOptions([]);
-    console.log("picking");
+    setOptions([]);
     const response = await fetch(
       `http://127.0.0.1:5000/categories/pick?${selected
         .map((c) => `categories=${c}`)
