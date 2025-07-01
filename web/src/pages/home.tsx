@@ -47,7 +47,8 @@ export const Home = () => {
     throw new Error("Function not implemented.");
   }
 
-  const makePick = () => async (event: React.MouseEvent<HTMLButtonElement>) => {
+  const getPick = async (_: React.MouseEvent<HTMLButtonElement>) => {
+    console.log("picking");
     const response = await fetch(
       `http://127.0.0.1:5000/categories/pick?${selected
         .map((c) => `categories=${c}`)
@@ -130,9 +131,15 @@ export const Home = () => {
         </Select>
       </FormControl>
       <div className="cat-btns">
-        <Button onClick={makePick}>Pick!</Button>
+        <Button onClick={getPick}>Pick!</Button>
         <Button onClick={doExplore}>Explore!</Button>
       </div>
+      {pick ? (
+        <div>
+          PICK
+          <p>{pick}</p>
+        </div>
+      ) : null}
     </div>
   );
 };
