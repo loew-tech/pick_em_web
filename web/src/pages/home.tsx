@@ -4,6 +4,7 @@ import "./home.css";
 import {
   Button,
   Checkbox,
+  Container,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -11,7 +12,7 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
-import { Selection } from "../types/types";
+import { Category, Selection } from "../types/types";
 
 export const Home = () => {
   const [categories, setCategories] = useState<string[]>([]);
@@ -19,6 +20,7 @@ export const Home = () => {
   const [interest, setInterest] = useState<string>("low");
   const [effort, setEffort] = useState<string>("low");
   const [pick, setPick] = useState<string | null>(null);
+  const [options, setOptions] = useState<Category[]>([]);
 
   const fetchCategories = async () => {
     const response = await fetch("http://127.0.0.1:5000/categories");
@@ -43,11 +45,25 @@ export const Home = () => {
     setSelected(new_);
   };
 
-  function doExplore(event: React.MouseEvent<HTMLButtonElement>): void {
-    throw new Error("Function not implemented.");
-  }
+  const doExplore = async (_: React.MouseEvent<HTMLButtonElement>) => {
+    setPick(null);
+    console.log("categories", categories);
+    let cats: Category[] = [];
+    await categories.forEach(async (c) => {
+      console.log("c", c);
+      const resposne = await fetch(`http://127.0.0.1:5000/categories/${c}`);
+      if (!resposne.ok) {
+        return;
+      }
+      const data = await resposne.json();
+      cats.push(data);
+      console.log("cats", cats);
+    });
+    setOptions(cats);
+  };
 
   const getPick = async (_: React.MouseEvent<HTMLButtonElement>) => {
+    // setOptions([]);
     console.log("picking");
     const response = await fetch(
       `http://127.0.0.1:5000/categories/pick?${selected
@@ -138,6 +154,27 @@ export const Home = () => {
         <div>
           PICK
           <p>{pick}</p>
+        </div>
+      ) : null}
+      {options.length ? (
+        <div className="options-wrapper">
+          <h2>Options</h2>
+          {options.map((o) => (
+            <div key={o.name}>
+              <h3>{o.name}</h3>
+              <div className="options-grid">
+                {o.choices.map((c, i) => (
+                  <div className="option-card" key={`${i}-${c.name}`}>
+                    <h4>{c.name}</h4>
+                    <ul>
+                      <li>Interest: {c.interest ?? "?"}</li>
+                      <li>Effort: {c.effort ?? "?"}</li>
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       ) : null}
     </div>

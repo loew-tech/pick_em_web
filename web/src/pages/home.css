@@ -1,9 +1,67 @@
 .home {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 20px;
-  background-color: #f7f9fc;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  max-width: 960px;
+  margin: 0 auto;
   font-family: Arial, sans-serif;
+}
+
+.cat-btns {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.cat-btns button {
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.cat-btns button:hover {
+  background-color: #f0f0f0;
+}
+
+h2,
+h3 {
+  margin-top: 2rem;
+  color: #333;
+}
+
+h4 {
+  margin: 0.5rem 0 0.2rem;
+  color: #555;
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 1rem;
+  margin: 0 0 1rem;
+}
+
+ul li {
+  font-size: 0.9rem;
+  color: #444;
+}
+
+select {
+  min-width: 120px;
+}
+
+.options-wrapper {
+  margin-top: 2rem;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.option-card {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 1rem;
+  background-color: #fafafa;
 }

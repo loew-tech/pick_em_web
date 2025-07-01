@@ -7,3 +7,8 @@ export type Option = {
 export type Selection = {
   selection: string;
 };
+
+export type Category = {
+  name: string;
+  choices: Option[];
+};
