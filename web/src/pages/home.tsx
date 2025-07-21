@@ -2,12 +2,13 @@ import { ChangeEvent, ReactNode, useEffect, useState } from "react";
 
 import "./home.css";
 
-import { Button, makeStyles } from "@mui/material";
+import { Button } from "@mui/material";
 import { Category, Selection } from "../types/types";
 import { OptionsComponent } from "../components/Options";
 import { FilterDropdown } from "../components/FilterDropdown";
 import { PickComponent } from "../components/Pick";
 import { CategorySelect } from "../components/CategorySelect";
+import { EditItem } from "../components/Edit";
 
 export const Home = () => {
   const [categories, setCategories] = useState<string[]>([]);
@@ -18,6 +19,7 @@ export const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [options, setOptions] = useState<Category[]>([]);
   const [removed, setRemoved] = useState<boolean>(false);
+  const [editing, setEditing] = useState<boolean>(false);
 
   const fetchCategories = async () => {
     const response = await fetch("http://127.0.0.1:5000/categories");
@@ -103,6 +105,14 @@ export const Home = () => {
     setEffort(event.target.value as string);
   };
 
+  if (editing) {
+    return (
+      <div className="home">
+        <EditItem setEditing={setEditing} />
+      </div>
+    );
+  }
+
   return (
     <div className="home">
       <CategorySelect categories={categories} handleChange={handleChange} />
@@ -111,6 +121,7 @@ export const Home = () => {
       <div className="cat-btns">
         <Button onClick={getPick}>Pick!</Button>
         <Button onClick={doExplore}>Explore!</Button>
+        <Button onClick={() => setEditing(true)}>Edit!</Button>
       </div>
       {pick ? (
         <PickComponent
