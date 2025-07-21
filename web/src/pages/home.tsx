@@ -2,7 +2,7 @@ import { ChangeEvent, ReactNode, useEffect, useState } from "react";
 
 import "./home.css";
 
-import { Button } from "@mui/material";
+import { Button, makeStyles } from "@mui/material";
 import { Category, Selection } from "../types/types";
 import { OptionsComponent } from "../components/Options";
 import { FilterDropdown } from "../components/FilterDropdown";
@@ -17,6 +17,7 @@ export const Home = () => {
   const [pick, setPick] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [options, setOptions] = useState<Category[]>([]);
+  const [removed, setRemoved] = useState<boolean>(false);
 
   const fetchCategories = async () => {
     const response = await fetch("http://127.0.0.1:5000/categories");
@@ -56,8 +57,13 @@ export const Home = () => {
     setOptions(cats.filter((cat): cat is Category => cat !== null));
   };
 
+  const markRemoved = () => {
+    setRemoved(true);
+  };
+
   const getPick = async (_: React.MouseEvent<HTMLButtonElement>) => {
     setOptions([]);
+    setRemoved(false);
     const response = await fetch(
       `http://127.0.0.1:5000/categories/pick?${selected
         .map((c) => `categories=${c}`)
@@ -107,7 +113,12 @@ export const Home = () => {
         <Button onClick={doExplore}>Explore!</Button>
       </div>
       {pick ? (
-        <PickComponent pick={pick} selectedCategory={selectedCategory} />
+        <PickComponent
+          pick={pick}
+          selectedCategory={selectedCategory}
+          removed={removed}
+          markRemoved={markRemoved}
+        />
       ) : null}
       {options.length ? <OptionsComponent options={options} /> : null}
     </div>

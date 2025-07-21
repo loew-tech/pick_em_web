@@ -1,33 +1,26 @@
 import { Button } from "@mui/material";
-import { useState } from "react";
+import { removeOption } from "../utils/utils";
 
 type PickComponentProps = {
   pick: string;
   selectedCategory: string;
+  removed: boolean;
+  markRemoved: () => void;
 };
 export const PickComponent = ({
   pick,
   selectedCategory,
+  removed,
+  markRemoved,
 }: PickComponentProps) => {
-  const [removed, setRemoved] = useState<boolean>(false);
-
   const removeItem = async (_: React.MouseEvent<HTMLButtonElement>) => {
-    setRemoved(false);
     if (!pick) {
       return;
     }
     const p = pick.split(" ").join("+");
-    const respsone = await fetch(
-      `http://127.0.0.1:5000/categories/${selectedCategory}/remove/${p}`,
-      {
-        method: "DELETE",
-      }
-    );
-    if (!respsone.ok) {
-      console.warn(`Failed to remove item ${pick}`);
-      return;
+    if (await removeOption(selectedCategory, p)) {
+      markRemoved();
     }
-    setRemoved(true);
   };
 
   return (
