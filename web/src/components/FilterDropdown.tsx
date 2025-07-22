@@ -8,14 +8,16 @@ import { SelectChangeEvent } from "@mui/material/Select";
 
 type FilterDropdownProps = {
   title: string;
+  initVal?: string | null;
   handleChange: (event: SelectChangeEvent, child: ReactNode) => void;
 };
 
 export const FilterDropdown = ({
   title,
+  initVal,
   handleChange,
 }: FilterDropdownProps) => {
-  const [val, setVal] = useState<string>("low");
+  const [val, setVal] = useState<string>(initVal ?? "low");
 
   const toTitleCase = (s: string) => {
     return s.charAt(0).toUpperCase() + s.slice(1);
