@@ -3,12 +3,13 @@ import { ChangeEvent, ReactNode, useEffect, useState } from "react";
 import "./home.css";
 
 import { Button } from "@mui/material";
-import { Category, Option, Selection } from "../types/types";
+import { Category, Option } from "../types/types";
 import { OptionsComponent } from "../components/Options";
 import { FilterDropdown } from "../components/FilterDropdown";
 import { PickComponent } from "../components/Pick";
 import { CategorySelect } from "../components/CategorySelect";
 import { EditItem } from "../components/Edit";
+import { explore, fetchCategories, makePick } from "../utils/utils";
 
 export const Home = () => {
   const [categories, setCategories] = useState<string[]>([]);
@@ -16,6 +17,7 @@ export const Home = () => {
   const [interest, setInterest] = useState<string>("low");
   const [effort, setEffort] = useState<string>("low");
   const [pick, setPick] = useState<string | null>(null);
+  const [pickErr, setPickErr] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [options, setOptions] = useState<Category[]>([]);
   const [removed, setRemoved] = useState<boolean>(false);
@@ -23,17 +25,13 @@ export const Home = () => {
   const [editCategory, setEditCategory] = useState<string | null>(null);
   const [editOption, setEditOption] = useState<Option | null>(null);
 
-  const fetchCategories = async () => {
-    const response = await fetch("http://127.0.0.1:5000/categories");
-    if (!response.ok) {
-      return;
-    }
-    const cats = await response.json();
+  const getCategories = async () => {
+    const cats = await fetchCategories();
     setCategories(cats);
   };
 
   useEffect(() => {
-    fetchCategories();
+    getCategories();
   }, []);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,17 +46,8 @@ export const Home = () => {
 
   const doExplore = async (_: React.MouseEvent<HTMLButtonElement>) => {
     setPick(null);
-    const cats: Category[] = await Promise.all(
-      selected.map(async (c) => {
-        const response = await fetch(`http://127.0.0.1:5000/categories/${c}`);
-        if (!response.ok) {
-          return null;
-        }
-        const data = await response.json();
-        return data;
-      })
-    );
-    setOptions(cats.filter((cat): cat is Category => cat !== null));
+    const cats = await explore(selected);
+    setOptions(cats.filter((cat) => cat !== null));
   };
 
   const markRemoved = () => {
@@ -68,23 +57,11 @@ export const Home = () => {
   const getPick = async (_: React.MouseEvent<HTMLButtonElement>) => {
     setOptions([]);
     setRemoved(false);
-    const response = await fetch(
-      `http://127.0.0.1:5000/categories/pick?${selected
-        .map((c) => `categories=${c}`)
-        .join("&")}&effort=${effort}&interest=${interest}`
-    );
-
-    if (!response.ok) {
-      console.warn(
-        "fetching pick failed",
-        categories,
-        "interest",
-        interest,
-        "effort",
-        effort
-      );
+    const choice = await makePick(effort, interest, selected);
+    if (!choice) {
+      setPickErr(true);
+      return;
     }
-    const choice: Selection = await response.json();
     setPick(choice.selection);
     setSelectedCategory(choice.category);
   };
@@ -101,7 +78,7 @@ export const Home = () => {
     setEditCategory(null);
     setEditOption(null);
     setEditing(false);
-    fetchCategories();
+    getCategories();
   };
 
   const handleInterestChange = (
@@ -136,6 +113,9 @@ export const Home = () => {
 
   return (
     <div className="home">
+      {pickErr && (
+        <p className="error-msg">An error occured attempting to make pick</p>
+      )}
       <CategorySelect categories={categories} handleChange={handleChange} />
       <FilterDropdown title="interest" handleChange={handleInterestChange} />
       <FilterDropdown title="effort" handleChange={handleEffortChange} />
