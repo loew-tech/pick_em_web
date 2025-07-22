@@ -52,6 +52,7 @@ export const Home = () => {
 
   const markRemoved = () => {
     setRemoved(true);
+    getCategories();
   };
 
   const getPick = async (_: React.MouseEvent<HTMLButtonElement>) => {
@@ -75,6 +76,7 @@ export const Home = () => {
   const exitEditing = () => {
     setSelected([]);
     setOptions([]);
+    setPick(null);
     setEditCategory(null);
     setEditOption(null);
     setEditing(false);

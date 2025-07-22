@@ -25,7 +25,7 @@ export const PickComponent = ({
 
   return (
     <div>
-      PICK
+      <h3>{selectedCategory}</h3>
       <p>{pick}</p>
       <Button disabled={removed} onClick={removeItem}>
         {removed ? "REMOVED" : "REMOVE"}
