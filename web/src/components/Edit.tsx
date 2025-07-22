@@ -4,6 +4,12 @@ import { ChangeEvent, ReactNode, useState } from "react";
 import { FilterDropdown } from "./FilterDropdown";
 import { addOption, removeOption, updateOption } from "../utils/utils";
 
+enum ACTIONS {
+  UPDATE,
+  REMOVE,
+  ADD,
+}
+
 type EditItemProps = {
   option?: Option | null;
   category?: string | null;
@@ -17,7 +23,8 @@ export const EditItem = ({ option, category, exitEditing }: EditItemProps) => {
       interest: "low",
     }
   );
-  const [cat, setCat] = useState<string>("");
+  const [cat, setCat] = useState<string>(category ?? "");
+  const [editErr, setEditErr] = useState<boolean>(false);
 
   const handleCategoryChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -49,34 +56,37 @@ export const EditItem = ({ option, category, exitEditing }: EditItemProps) => {
     setNewOption({ ...newOption, effort: event.target.value } as Option);
   }
 
-  const removeItem = async () => {
-    if (!newOption || !category) {
+  const takeEditAction = async (action: ACTIONS) => {
+    if (!cat || !newOption || !newOption.name) {
       return;
     }
-    await removeOption(category, newOption.name);
-    exitEditing();
-  };
 
-  const addItem = async () => {
-    if (!cat || !newOption.name) {
+    let ok = false;
+    switch (action) {
+      case ACTIONS.UPDATE:
+        ok = await updateOption(cat, newOption);
+        break;
+      case ACTIONS.REMOVE:
+        ok = await removeOption(cat, newOption.name);
+        break;
+      case ACTIONS.ADD:
+        ok = await addOption(cat, newOption);
+        break;
+    }
+
+    console.log("ok=", ok);
+    if (!ok) {
+      setEditErr(true);
       return;
     }
-    await addOption(cat, newOption);
     exitEditing();
   };
-
-  const updateItem = async () => {
-    if (!category || !newOption || !newOption.name) {
-      return;
-    }
-    await updateOption(category, newOption);
-    exitEditing();
-  };
-
-  console.log(typeof category, category);
 
   return (
     <>
+      {editErr && (
+        <p className="error-msg">An error occured attempting to submit edit</p>
+      )}
       {option ? (
         <>
           <h3>{category}</h3>
@@ -109,11 +119,18 @@ export const EditItem = ({ option, category, exitEditing }: EditItemProps) => {
       <div className="cat-btns">
         {option ? (
           <>
-            <Button onClick={removeItem}>REMOVE</Button>
-            <Button onClick={updateItem}>UPDATE</Button>
+            <Button onClick={() => takeEditAction(ACTIONS.REMOVE)}>
+              REMOVE
+            </Button>
+            <Button onClick={() => takeEditAction(ACTIONS.UPDATE)}>
+              UPDATE
+            </Button>
           </>
         ) : (
-          <Button disabled={!(cat && newOption)} onClick={addItem}>
+          <Button
+            disabled={!(cat && newOption)}
+            onClick={() => takeEditAction(ACTIONS.ADD)}
+          >
             ADD
           </Button>
         )}
