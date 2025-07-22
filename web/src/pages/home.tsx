@@ -46,7 +46,7 @@ export const Home = () => {
 
   const doExplore = async (_: React.MouseEvent<HTMLButtonElement>) => {
     setPick(null);
-    const cats = await explore(selected);
+    const cats = await explore(selected.length ? selected : categories);
     setOptions(cats.filter((cat) => cat !== null));
   };
 

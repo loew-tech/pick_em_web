@@ -74,7 +74,6 @@ export const EditItem = ({ option, category, exitEditing }: EditItemProps) => {
         break;
     }
 
-    console.log("ok=", ok);
     if (!ok) {
       setEditErr(true);
       return;
