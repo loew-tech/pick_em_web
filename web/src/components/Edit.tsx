@@ -1,14 +1,15 @@
 import { Button, TextField } from "@mui/material";
-import { Option, OptionWithCatName } from "../types/types";
+import { Option } from "../types/types";
 import { ChangeEvent, ReactNode, useState } from "react";
 import { FilterDropdown } from "./FilterDropdown";
 import { addOption, removeOption } from "../utils/utils";
 
 type EditItemProps = {
-  option?: OptionWithCatName;
-  setEditing: (b: boolean) => void;
+  option?: Option | null;
+  category?: string | null;
+  exitEditing: () => void;
 };
-export const EditItem = ({ option, setEditing }: EditItemProps) => {
+export const EditItem = ({ option, category, exitEditing }: EditItemProps) => {
   const [newOption, setNewOption] = useState<Option>({
     name: "",
     effort: "low",
@@ -46,28 +47,30 @@ export const EditItem = ({ option, setEditing }: EditItemProps) => {
     setNewOption({ ...newOption, effort: event.target.value } as Option);
   }
 
-  const removeItem = () => {
-    if (!option) {
+  const removeItem = async () => {
+    if (!option || !category) {
       return;
     }
-    removeOption(option.category, option!.name);
-    setEditing(false);
+    await removeOption(category, option!.name);
+    exitEditing();
   };
 
-  const addItem = () => {
+  const addItem = async () => {
     if (!cat || !newOption.name) {
       return;
     }
-    addOption(cat, newOption);
-    setEditing(false);
+    await addOption(cat, newOption);
+    exitEditing();
   };
+
+  console.log(typeof category, category);
 
   return (
     <>
       {option ? (
         <>
-          <h3>option.category</h3>
-          <p>option.name</p>
+          <h3>{category}</h3>
+          <p>{option.name}</p>
         </>
       ) : (
         <>
@@ -95,12 +98,16 @@ export const EditItem = ({ option, setEditing }: EditItemProps) => {
       />
       <div className="cat-btns">
         {option ? (
-          <Button onClick={removeItem}>REMOVE</Button>
+          <>
+            <Button onClick={removeItem}>REMOVE</Button>
+            <Button onClick={() => console.log("remove btn")}>UPDATE</Button>
+          </>
         ) : (
           <Button disabled={!(cat && newOption)} onClick={addItem}>
             ADD
           </Button>
         )}
+        <Button onClick={exitEditing}>Cancel</Button>
       </div>
     </>
   );

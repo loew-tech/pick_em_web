@@ -4,13 +4,6 @@ export type Option = {
   effort?: string;
 };
 
-export type OptionWithCatName = {
-  name: string;
-  category: string;
-  interest?: string;
-  effort?: string;
-};
-
 export type Selection = {
   selection: string;
   category: string;

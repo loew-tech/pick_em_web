@@ -3,7 +3,7 @@ import { ChangeEvent, ReactNode, useEffect, useState } from "react";
 import "./home.css";
 
 import { Button } from "@mui/material";
-import { Category, Selection } from "../types/types";
+import { Category, Option, Selection } from "../types/types";
 import { OptionsComponent } from "../components/Options";
 import { FilterDropdown } from "../components/FilterDropdown";
 import { PickComponent } from "../components/Pick";
@@ -20,6 +20,8 @@ export const Home = () => {
   const [options, setOptions] = useState<Category[]>([]);
   const [removed, setRemoved] = useState<boolean>(false);
   const [editing, setEditing] = useState<boolean>(false);
+  const [editCategory, setEditCategory] = useState<string | null>(null);
+  const [editOption, setEditOption] = useState<Option | null>(null);
 
   const fetchCategories = async () => {
     const response = await fetch("http://127.0.0.1:5000/categories");
@@ -87,6 +89,21 @@ export const Home = () => {
     setSelectedCategory(choice.category);
   };
 
+  const initEditing = (category: string, choice: Option) => {
+    setEditCategory(category);
+    setEditOption(choice);
+    setEditing(true);
+  };
+
+  const exitEditing = () => {
+    setSelected([]);
+    setOptions([]);
+    setEditCategory(null);
+    setEditOption(null);
+    setEditing(false);
+    fetchCategories();
+  };
+
   const handleInterestChange = (
     event:
       | ChangeEvent<Omit<HTMLInputElement, "value"> & { value: string }>
@@ -108,7 +125,11 @@ export const Home = () => {
   if (editing) {
     return (
       <div className="home">
-        <EditItem setEditing={setEditing} />
+        <EditItem
+          category={editCategory}
+          option={editOption}
+          exitEditing={exitEditing}
+        />
       </div>
     );
   }
@@ -131,7 +152,9 @@ export const Home = () => {
           markRemoved={markRemoved}
         />
       ) : null}
-      {options.length ? <OptionsComponent options={options} /> : null}
+      {options.length ? (
+        <OptionsComponent options={options} initEditing={initEditing} />
+      ) : null}
     </div>
   );
 };
