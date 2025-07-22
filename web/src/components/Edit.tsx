@@ -2,7 +2,7 @@ import { Button, TextField } from "@mui/material";
 import { Option } from "../types/types";
 import { ChangeEvent, ReactNode, useState } from "react";
 import { FilterDropdown } from "./FilterDropdown";
-import { addOption, removeOption } from "../utils/utils";
+import { addOption, removeOption, updateOption } from "../utils/utils";
 
 type EditItemProps = {
   option?: Option | null;
@@ -10,11 +10,13 @@ type EditItemProps = {
   exitEditing: () => void;
 };
 export const EditItem = ({ option, category, exitEditing }: EditItemProps) => {
-  const [newOption, setNewOption] = useState<Option>({
-    name: "",
-    effort: "low",
-    interest: "low",
-  });
+  const [newOption, setNewOption] = useState<Option>(
+    option ?? {
+      name: "",
+      effort: "low",
+      interest: "low",
+    }
+  );
   const [cat, setCat] = useState<string>("");
 
   const handleCategoryChange = (
@@ -48,10 +50,10 @@ export const EditItem = ({ option, category, exitEditing }: EditItemProps) => {
   }
 
   const removeItem = async () => {
-    if (!option || !category) {
+    if (!newOption || !category) {
       return;
     }
-    await removeOption(category, option!.name);
+    await removeOption(category, newOption.name);
     exitEditing();
   };
 
@@ -60,6 +62,14 @@ export const EditItem = ({ option, category, exitEditing }: EditItemProps) => {
       return;
     }
     await addOption(cat, newOption);
+    exitEditing();
+  };
+
+  const updateItem = async () => {
+    if (!category || !newOption || !newOption.name) {
+      return;
+    }
+    await updateOption(category, newOption);
     exitEditing();
   };
 
@@ -100,7 +110,7 @@ export const EditItem = ({ option, category, exitEditing }: EditItemProps) => {
         {option ? (
           <>
             <Button onClick={removeItem}>REMOVE</Button>
-            <Button onClick={() => console.log("remove btn")}>UPDATE</Button>
+            <Button onClick={updateItem}>UPDATE</Button>
           </>
         ) : (
           <Button disabled={!(cat && newOption)} onClick={addItem}>

@@ -40,3 +40,27 @@ export const addOption = async (
   }
   return true;
 };
+
+export const updateOption = async (
+  category: string,
+  option: Option
+): Promise<boolean> => {
+  const respsone = await fetch(
+    `http://127.0.0.1:5000/categories/${category}/edit/${option.name}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        effort: option.effort,
+        interest: option.interest,
+      }),
+    }
+  );
+  if (!respsone.ok) {
+    console.warn(`Failed to update item ${option.name} to ${category}`);
+    return false;
+  }
+  return true;
+};
