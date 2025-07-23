@@ -3,12 +3,14 @@ import { Option } from "../types/types";
 import { ChangeEvent, ReactNode, useState } from "react";
 import { FilterDropdown } from "./FilterDropdown";
 import { addOption, removeOption, updateOption } from "../utils/utils";
+import { NewCategoryModal } from "./NewCategoryModal";
 
 enum ACTIONS {
   UPDATE,
   REMOVE,
   ADD,
 }
+const ADD_NEW = "addNew";
 
 type EditItemProps = {
   option?: Option | null;
@@ -29,15 +31,10 @@ export const EditItem = ({
       interest: "low",
     }
   );
+  const [cats, setCats] = useState<string[]>(categories);
   const [cat, setCat] = useState<string>(category ?? "");
-  const [dropdownCat, setDropdownCat] = useState<string>("");
   const [editErr, setEditErr] = useState<boolean>(false);
-
-  const handleCategoryChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setCat(event.target.value);
-  };
+  const [openModal, setOpenModal] = useState<boolean>(false);
 
   const handleNameChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -72,8 +69,17 @@ export const EditItem = ({
     _: ReactNode
   ) => {
     const val = event.target.value as string;
-    setDropdownCat(val);
+    setOpenModal(val === ADD_NEW);
     setCat(val);
+  };
+
+  const addNewCategory = (newCat: string): boolean => {
+    if (cats.includes(newCat)) {
+      return false;
+    }
+    setCat(newCat);
+    setCats([...cats, newCat]);
+    return true;
   };
 
   const takeEditAction = async (action: ACTIONS) => {
@@ -113,25 +119,22 @@ export const EditItem = ({
         </>
       ) : (
         <>
+          {openModal && <NewCategoryModal addNewCategory={addNewCategory} />}
           <InputLabel id="simple-select-label">
             Select Existing Cateogory
           </InputLabel>
           <Select
             labelId="simple-select-label"
             id="simple-select"
-            value={dropdownCat}
+            value={cat}
             label="Age"
             onChange={handleDropdownSelect}
           >
-            {categories.map((c) => (
+            {cats.map((c) => (
               <MenuItem value={c}>{c}</MenuItem>
             ))}
+            <MenuItem value={ADD_NEW}>Add New</MenuItem>
           </Select>
-          <TextField
-            id="outlined-basic"
-            placeholder="enter category"
-            onChange={handleCategoryChange}
-          ></TextField>
           <TextField
             id="outlined-basic"
             placeholder="enter name"
