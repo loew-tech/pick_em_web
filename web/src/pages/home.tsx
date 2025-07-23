@@ -52,6 +52,7 @@ export const Home = () => {
 
   const markRemoved = () => {
     setRemoved(true);
+    setSelected([]);
     getCategories();
   };
 

@@ -9,6 +9,7 @@ enum ACTIONS {
   UPDATE,
   REMOVE,
   ADD,
+  CANCEL,
 }
 
 type EditItemProps = {
@@ -68,7 +69,10 @@ export const EditItem = ({
   };
 
   const takeEditAction = async (action: ACTIONS) => {
-    if (!cat || !newOption || !newOption.name) {
+    if (action === ACTIONS.CANCEL) {
+      exitEditing();
+    }
+    if (!cat || !newOption.name) {
       return;
     }
 
@@ -138,13 +142,13 @@ export const EditItem = ({
           </>
         ) : (
           <Button
-            disabled={!(cat && newOption)}
+            disabled={!(cat && newOption.name)}
             onClick={() => takeEditAction(ACTIONS.ADD)}
           >
             ADD
           </Button>
         )}
-        <Button onClick={exitEditing}>Cancel</Button>
+        <Button onClick={() => takeEditAction(ACTIONS.CANCEL)}>Cancel</Button>
       </div>
     </>
   );
