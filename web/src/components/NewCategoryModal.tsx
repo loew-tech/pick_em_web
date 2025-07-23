@@ -49,6 +49,9 @@ export const NewCategoryModal = ({ addNewCategory }: NewCategoryModalProps) => {
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
+        {repeatedCatErr && (
+          <p className="error-msg">The submitted category already exists</p>
+        )}
         <Typography id="modal-modal-title" variant="h6" component="h2">
           Enter New Category
         </Typography>
