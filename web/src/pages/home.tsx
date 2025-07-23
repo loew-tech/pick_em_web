@@ -105,8 +105,9 @@ export const Home = () => {
     return (
       <div className="home">
         <EditItem
-          category={editCategory}
           option={editOption}
+          category={editCategory}
+          categories={categories}
           exitEditing={exitEditing}
         />
       </div>

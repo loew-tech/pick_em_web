@@ -1,4 +1,4 @@
-import { Button, TextField } from "@mui/material";
+import { Button, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { Option } from "../types/types";
 import { ChangeEvent, ReactNode, useState } from "react";
 import { FilterDropdown } from "./FilterDropdown";
@@ -13,9 +13,15 @@ enum ACTIONS {
 type EditItemProps = {
   option?: Option | null;
   category?: string | null;
+  categories: string[];
   exitEditing: () => void;
 };
-export const EditItem = ({ option, category, exitEditing }: EditItemProps) => {
+export const EditItem = ({
+  option,
+  category,
+  categories,
+  exitEditing,
+}: EditItemProps) => {
   const [newOption, setNewOption] = useState<Option>(
     option ?? {
       name: "",
@@ -24,6 +30,7 @@ export const EditItem = ({ option, category, exitEditing }: EditItemProps) => {
     }
   );
   const [cat, setCat] = useState<string>(category ?? "");
+  const [dropdownCat, setDropdownCat] = useState<string>("");
   const [editErr, setEditErr] = useState<boolean>(false);
 
   const handleCategoryChange = (
@@ -47,14 +54,27 @@ export const EditItem = ({ option, category, exitEditing }: EditItemProps) => {
     setNewOption({ ...newOption, interest: event.target.value } as Option);
   };
 
-  function handleEffortChange(
+  const handleEffortChange = (
     event:
       | ChangeEvent<Omit<HTMLInputElement, "value"> & { value: string }>
       | (Event & { target: { value: string; name: string } }),
     _: ReactNode
-  ): void {
+  ) => {
     setNewOption({ ...newOption, effort: event.target.value } as Option);
-  }
+  };
+
+  const handleDropdownSelect = (
+    event:
+      | ChangeEvent<HTMLInputElement>
+      | ChangeEvent<Omit<HTMLInputElement, "value"> & { value: string }>
+      | (Event & { target: { value: string; name: string } })
+      | (Event & { target: { value: null; name: string } }),
+    _: ReactNode
+  ) => {
+    const val = event.target.value as string;
+    setDropdownCat(val);
+    setCat(val);
+  };
 
   const takeEditAction = async (action: ACTIONS) => {
     if (!cat || !newOption || !newOption.name) {
@@ -93,6 +113,20 @@ export const EditItem = ({ option, category, exitEditing }: EditItemProps) => {
         </>
       ) : (
         <>
+          <InputLabel id="simple-select-label">
+            Select Existing Cateogory
+          </InputLabel>
+          <Select
+            labelId="simple-select-label"
+            id="simple-select"
+            value={dropdownCat}
+            label="Age"
+            onChange={handleDropdownSelect}
+          >
+            {categories.map((c) => (
+              <MenuItem value={c}>{c}</MenuItem>
+            ))}
+          </Select>
           <TextField
             id="outlined-basic"
             placeholder="enter category"
