@@ -45,6 +45,7 @@
     ]
   },
   "devDependencies": {
+    "@types/css-modules": "^1.0.5",
     "ajv": "^8.17.1"
   }
 }

@@ -1,7 +1,5 @@
 import { ChangeEvent, ReactNode, useEffect, useState } from "react";
 
-import "./home.css";
-
 import { Button } from "@mui/material";
 import { Category, Option } from "../types/types";
 import { OptionsComponent } from "../components/Options";
@@ -10,6 +8,8 @@ import { PickComponent } from "../components/Pick";
 import { CategorySelect } from "../components/CategorySelect";
 import { EditItem } from "../components/Edit";
 import { explore, fetchCategories, makePick } from "../utils/utils";
+
+import "./home.css";
 
 export const Home = () => {
   const [categories, setCategories] = useState<string[]>([]);
@@ -126,7 +126,7 @@ export const Home = () => {
       <div className="cat-btns">
         <Button onClick={getPick}>Pick!</Button>
         <Button onClick={doExplore}>Explore!</Button>
-        <Button onClick={() => setEditing(true)}>Edit!</Button>
+        <Button onClick={() => setEditing(true)}>Add New!</Button>
       </div>
       {pick ? (
         <PickComponent
